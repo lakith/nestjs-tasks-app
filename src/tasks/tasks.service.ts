@@ -27,4 +27,8 @@ export class TasksService {
         this.tasks.push(task);
         return task;
     }
+
+    deleteTask(id: string): Task[] {
+        return this.tasks.filter(task => task.id === id);
+    }
 }
