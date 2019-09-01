@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Task, TaskStatus } from './task.modal';
 import * as uuid from 'uuid/v1';
+import { CreateTaskDto } from './dto/create-task.dto';
 
 @Injectable()
 export class TasksService {
@@ -10,7 +11,9 @@ export class TasksService {
         return this.tasks;
     }
 
-    addNewTask(title: string, description: string): Task {
+    addNewTask(createTaskDto: CreateTaskDto): Task {
+        const {title, description} = createTaskDto; // object destructuring
+
         const task: Task = {
             id: uuid(),
             title, // same as title:title                        /****** In ES6 object litaral syntax is enhanced in this way
