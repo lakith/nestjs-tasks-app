@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Task, TaskStatus } from './task.modal';
 import * as uuid from 'uuid/v1';
 import { CreateTaskDto } from './dto/create-task.dto';
+import { UpdateTaskDTO } from './dto/update-task.dto';
+import { GetTaskFilterDTO } from './dto/get-tast-filter.dto';
 
 @Injectable()
 export class TasksService {
@@ -12,7 +14,11 @@ export class TasksService {
     }
 
     getTaskById(id: string): Task {
-        return this.tasks.find(task => task.id === id);
+        const task = this.tasks.find(task => task.id === id);
+        if(!task) {
+            throw new NotFoundException();
+        }
+        return task;
     }
 
     addNewTask(createTaskDto: CreateTaskDto): Task {
@@ -28,7 +34,37 @@ export class TasksService {
         return task;
     }
 
-    deleteTask(id: string): Task[] {
-        return this.tasks.filter(task => task.id === id);
+    updateTask(id:string ,updateTaskDTO: UpdateTaskDTO): Task {
+        const found = this.getTaskById(id);
+        found.status = updateTaskDTO.status
+        return found;
     }
+
+    deleteTask(id: string): void {
+        const found = this.getTaskById(id);
+        this.tasks.filter(task => task.id === found.id);
+    }
+
+    getTasksWithFilters(filterDto: GetTaskFilterDTO): Task[] {
+        const { status, search } = filterDto;
+    
+        let tasks = this.getAllTasks();
+    
+        // do something with status
+        if (status) {
+          tasks = tasks.filter((task) => task.status === status);
+        }
+    
+        if (search) {
+          tasks = tasks.filter((task) => {
+            if (task.title.includes(search) || task.description.includes(search)) {
+              return true;
+            }
+    
+            return false;
+          });
+        }
+    
+        return tasks;
+      }
 }
